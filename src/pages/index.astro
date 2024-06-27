@@ -1,0 +1,78 @@
+---
+import "../styles/base.css";
+import "@fontsource/nunito";
+import "@fontsource/nunito/500.css";
+import "@fontsource/nunito/600.css";
+import "@fontsource/nunito/700.css";
+import "@fontsource/nunito/800.css";
+import "@fontsource/nunito/900.css";
+import { BaseHead } from "../components";
+import { PostsList } from "../components/posts-list";
+import { createClient } from "@vrite/sdk/api";
+
+interface HostConfig {
+  contentGroupId: string;
+  accessToken: string;
+}
+// TODO: Abstract this into config
+const host = Astro.request.headers.get("host") || "";
+if (!host) return Astro.redirect("https://vrite.io");
+
+const hostConfigString = await Astro.locals.redis.get(host);
+const hostConfig: HostConfig | null = JSON.parse(hostConfigString || "null");
+
+if (!hostConfig) return Astro.redirect("https://vrite.io");
+const client = createClient({
+  token: hostConfig.accessToken,
+});
+const contentPieces = await client.contentPieces.list({
+  perPage: 20,
+  contentGroupId: hostConfig.contentGroupId,
+});
+const workspace = await client.workspace.get();
+const title = workspace.name;
+const description = workspace.description || "";
+// END TODO:
+---
+
+<html lang="en" class="bg-gray-50 dark:bg-gray-800">
+  <head>
+    <BaseHead title={title} description={description} />
+  </head>
+
+  <body class="overflow-x-hidden overscroll-none">
+    <main
+      class="flex flex-col relative items-center justify-center gap-8 p-4 pb-0 bg-gray-50 dark:bg-gray-800 z-0"
+    >
+      <div
+        class="bg-gradient-to-tr opacity-30 absolute top-[25vmin] xl:-top-[50vmin] -left-[50vmin] h-[100vmin] w-[100vmin] flex justify-center items-center rounded-full -z-1 blur-2xl"
+      >
+        <div
+          class="h-[60vmin] w-[60vmin] bg-gray-50 dark:bg-gray-800 absolute rounded-full"
+        >
+        </div>
+      </div>
+      <div
+        class="min-h-screen max-w-screen-lg w-full mt-16 relative justify-center items-center flex flex-col pb-32"
+      >
+        <div class="flex justify-start items-start py-20 w-full gap-20">
+          <div class="md:max-w-1/2">
+            <h1
+              class="text-5xl !font-bold text-gray-800 dark:text-gray-100 mb-2"
+            >
+              {workspace.name}
+            </h1>
+            <p class="text-2xl text-gray-500 dark:text-gray-400">
+              {workspace.description}
+            </p>
+          </div>
+        </div>
+        <PostsList
+          contentPieces={contentPieces}
+          hostConfig={hostConfig}
+          client:idle
+        />
+      </div>
+    </main>
+  </body>
+</html>

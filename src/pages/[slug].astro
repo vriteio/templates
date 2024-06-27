@@ -1,0 +1,88 @@
+---
+import { BaseHead } from "../components";
+import { Content } from "virtual:vrite";
+import { convert } from "html-to-text";
+import dayjs from "dayjs";
+import "../styles/blog.scss";
+import { createClient } from "@vrite/sdk/api";
+
+interface HostConfig {
+  contentGroupId: string;
+  accessToken: string;
+}
+
+// TODO: Abstract this into config
+const host = Astro.request.headers.get("host") || "";
+
+if (!host) return Astro.redirect("https://vrite.io");
+
+const hostConfigString = await Astro.locals.redis.get(host);
+const hostConfig: HostConfig | null = JSON.parse(hostConfigString || "null");
+
+if (!hostConfig) return Astro.redirect("https://vrite.io");
+
+const client = createClient({
+  token: hostConfig.accessToken,
+});
+const [contentPiece] = await client.contentPieces.list({
+  contentGroupId: hostConfig.contentGroupId,
+  slug: Astro.params.slug,
+  perPage: 1,
+});
+const { content } = await client.contentPieces.get({
+  id: contentPiece.id,
+  content: true,
+});
+const { title, description, date, coverUrl, members } = contentPiece;
+const primaryAuthor = members[0]?.profile || null;
+// END TODO:
+---
+
+<html lang="en" class="bg-gray-50 dark:bg-gray-800">
+  <head>
+    <BaseHead
+      title={title}
+      description={convert(description || "", { wordwrap: false })}
+      image={coverUrl || undefined}
+    />
+  </head>
+
+  <body class="overflow-x-hidden">
+    <main
+      class="flex flex-col items-center justify-center gap-8 p-4 pb-0 bg-gray-50 dark:bg-gray-800"
+    >
+      <div class="mt-8 md:mt-16 relative z-1 text-xl max-w-[calc(70ch+8rem)]">
+        <div class="grid-background-2"></div>
+        <div class="px-16">
+          <img
+            src={coverUrl}
+            alt="Blog post cover"
+            class="object-cover max-w-screen-lg w-full rounded-3xl shadow-2xl shadow-gray-400 dark:shadow-gray-900 before:bg-gray-100 dark:before:bg-gray-800"
+          />
+        </div>
+      </div>
+      <div
+        class="relative z-1 text-xl max-w-[70ch] prose dark:prose-invert text-gray-600 dark:text-gray-100 w-full pb-32 md:pt-0"
+      >
+        <div
+          class="w-full justify-start items-center flex gap-2 font-medium text-gray-500 dark:text-gray-400 text-base"
+        >
+          {
+            primaryAuthor && (
+              <span>{primaryAuthor.fullName || primaryAuthor.username}</span>
+            )
+          }
+          {
+            primaryAuthor && date && (
+              <div class="h-4 w-px rounded-full bg-gray-500 dark:bg-gray-400" />
+            )
+          }{date && <span>{dayjs(date).format("DD MMM YYYY")}</span>}
+        </div>
+        <header>
+          <h1 class="!font-bold">{title}</h1>
+        </header>
+        <Content content={content} />
+      </div>
+    </main>
+  </body>
+</html>

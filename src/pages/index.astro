@@ -16,11 +16,12 @@ interface HostConfig {
 }
 // TODO: Abstract this into config
 const host = Astro.request.headers.get("host") || "";
+console.log("host", host);
 if (!host) return Astro.redirect("https://vrite.io");
 
 const hostConfigString = await Astro.locals.redis.get(host);
 const hostConfig: HostConfig | null = JSON.parse(hostConfigString || "null");
-
+console.log("hostConfig", hostConfig);
 if (!hostConfig) return Astro.redirect("https://vrite.io");
 const client = createClient({
   token: hostConfig.accessToken,

@@ -20,6 +20,10 @@ const runServer = async () => {
             type: "string",
             default: 3000,
           },
+          HOST: {
+            type: "string",
+            default: "localhost",
+          },
           REDIS_URL: {
             type: "string",
             default: "redis://localhost",
@@ -43,7 +47,7 @@ const runServer = async () => {
     ssrHandler(req, res, next, locals);
   });
 
-  app.listen({ port: app.config.PORT });
+  app.listen({ host: app.config.HOST, port: app.config.PORT });
 };
 
 runServer();

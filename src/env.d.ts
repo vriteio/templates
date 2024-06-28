@@ -3,6 +3,6 @@
 
 declare namespace App {
   interface Locals {
-    redis: import("@fastify/redis").FastifyRedis;
+    redis: import("ioredis").default;
   }
 }

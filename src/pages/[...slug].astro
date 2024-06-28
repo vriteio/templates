@@ -28,9 +28,6 @@ const [contentPiece] = await client.contentPieces.list({
   contentGroupId: hostConfig.contentGroupId,
   slug: Astro.params.slug,
   perPage: 1,
-});
-const { content } = await client.contentPieces.get({
-  id: contentPiece.id,
   content: true,
 });
 const { title, description, date, coverUrl, members } = contentPiece;
@@ -81,7 +78,7 @@ const primaryAuthor = members[0]?.profile || null;
         <header>
           <h1 class="!font-bold">{title}</h1>
         </header>
-        <Content content={content} />
+        <Content content={contentPiece.content} />
       </div>
     </main>
   </body>

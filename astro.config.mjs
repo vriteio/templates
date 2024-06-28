@@ -18,6 +18,6 @@ export default defineConfig({
   ],
   output: "server",
   adapter: node({
-    mode: "middleware",
+    mode: "standalone",
   }),
 });

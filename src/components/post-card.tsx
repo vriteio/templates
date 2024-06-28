@@ -1,6 +1,6 @@
 import type { ContentPieceWithAdditionalData } from "@vrite/sdk/api";
 import dayjs from "dayjs";
-import type { Component } from "solid-js";
+import { Show, type Component } from "solid-js";
 
 interface PostCardProps {
   contentPiece: ContentPieceWithAdditionalData;
@@ -37,20 +37,22 @@ const PostCard: Component<PostCardProps> = (props) => {
           </div>
         </div>
       </div>
-      <div class="flex flex-col gap-8 justify-center items-center w-full max-w-lg">
-        <div class="w-full rounded-3xl relative">
-          <div class="grid-background-3 -z-10"></div>
-          <div class="transition-transform duration-300 ease-in-out group-hover:scale-95 rounded-2xl overflow-hidden border-2 border-gray-200 dark:border-gray-700">
-            {props.contentPiece.coverUrl && (
-              <img
-                alt={props.contentPiece.coverAlt || undefined}
-                src={`${props.contentPiece.coverUrl}?w=600`}
-                class="object-cover"
-              />
-            )}
+      <Show when={props.contentPiece.coverUrl}>
+        <div class="flex flex-col gap-8 justify-center items-center w-full max-w-lg">
+          <div class="w-full rounded-3xl relative">
+            <div class="grid-background-3 -z-10"></div>
+            <div class="transition-transform duration-300 ease-in-out group-hover:scale-95 rounded-2xl overflow-hidden border-2 border-gray-200 dark:border-gray-700">
+              {props.contentPiece.coverUrl && (
+                <img
+                  alt={props.contentPiece.coverAlt || undefined}
+                  src={`${props.contentPiece.coverUrl}?w=600`}
+                  class="object-cover"
+                />
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      </Show>
     </a>
   );
 };

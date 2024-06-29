@@ -3,14 +3,14 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "start": "node ./dist/server/entry.mjs",
+    "start": "deno run --allow-net --allow-read --allow-env ./dist/server/entry.mjs",
     "build": "astro check && astro build",
-    "preview": "astro preview",
+    "preview": "deno run --allow-net --allow-read --allow-env ./dist/server/entry.mjs",
     "astro": "astro"
   },
   "dependencies": {
     "@astrojs/check": "^0.7.0",
-    "@astrojs/node": "^8.3.2",
+    "@astrojs/deno": "^5.0.1",
     "@astrojs/rss": "^4.0.7",
     "@astrojs/solid-js": "^4.4.0",
     "@fontsource/nunito": "^5.0.18",
